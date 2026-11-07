@@ -14,12 +14,6 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 # File lists for self-healing flat repo structure
-src_files = [
-    "pipeline.py", "whatsapp_guardian.py", "email_scanner.py",
-    "clipboard_guard.py", "telegram_guardian.py", "qr_scanner.py",
-    "preprocessor.py", "feature_extractor.py", "models.py",
-    "explainability.py", "localization.py", "api.py", "app.py"
-]
 challenge_files = [
     "evaluate_submission.py", "leaderboard.py", "leaderboard.json",
     "sample_submission.csv", "submission.csv", "submission_advanced.csv",
@@ -31,22 +25,28 @@ data_files = [
     "train.csv", "val.csv", "test_ground_truth.csv", "test_unlabeled.csv"
 ]
 
-# 1. Ensure src/ directory exists & populated
+# 1. Ensure src/ directory exists & populated with all python modules
 src_dir = os.path.join(ROOT_DIR, "src")
 if not os.path.exists(src_dir):
     os.makedirs(src_dir, exist_ok=True)
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
+
 init_src = os.path.join(src_dir, "__init__.py")
 if not os.path.exists(init_src):
     with open(init_src, "w", encoding="utf-8") as f:
         f.write("")
-for f in src_files:
-    src_path = os.path.join(ROOT_DIR, f)
-    dst_path = os.path.join(src_dir, f)
-    if os.path.exists(src_path) and not os.path.exists(dst_path):
-        try:
-            shutil.copy2(src_path, dst_path)
-        except Exception:
-            pass
+
+# Copy all root python modules into src/ so both flat and package imports work
+for item in os.listdir(ROOT_DIR):
+    item_path = os.path.join(ROOT_DIR, item)
+    if os.path.isfile(item_path) and item.endswith(".py") and item != "streamlit_app.py":
+        dst_path = os.path.join(src_dir, item)
+        if not os.path.exists(dst_path):
+            try:
+                shutil.copy2(item_path, dst_path)
+            except Exception:
+                pass
 
 # 2. Ensure challenge/ directory exists & populated
 challenge_dir = os.path.join(ROOT_DIR, "challenge")
