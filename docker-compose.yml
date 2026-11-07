@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  scamshield-defense:
+    build: .
+    container_name: scamshield_service
+    ports:
+      - "8501:8501"   # Streamlit Multi-Channel Dashboard
+      - "8000:8000"   # FastAPI Production Microservice
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
